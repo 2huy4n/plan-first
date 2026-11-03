@@ -150,15 +150,96 @@ export function parseDocument(markdown) {
   return { title, sections: sections.filter(section => section.heading || section.lines.length) }
 }
 
+function bulletCount(lines) {
+  return lines.filter(line => /^\s*[-*]\s+/.test(line)).length
+}
+
+export function summarize(document) {
+  const allText = document.sections.map(section => section.lines.join('\n')).join('\n')
+  const tasks = [...allText.matchAll(/^\s*[-*]\s+\[([ xX])\]\s+/gm)]
+  const tasksDone = tasks.filter(match => match[1].toLowerCase() === 'x').length
+  const taskPct = tasks.length ? Math.round((tasksDone / tasks.length) * 100) : 0
+
+  const scopeSection = document.sections.find(section => /^(范围|scope)$/i.test(section.heading))
+  const scopeLines = scopeSection
+    ? scopeSection.lines.filter(line => /^\s*[-*]\s+/.test(line))
+    : []
+  let scopeIn = 0
+  let scopeOut = 0
+  let scopeClassified = false
+  for (const line of scopeLines) {
+    if (/(^|\s)(In|包含|包括|纳入)\s*[:：]/i.test(line)) { scopeIn++; scopeClassified = true }
+    else if (/(^|\s)(Out|不包含|不包括|不做|排除)\s*[:：]/i.test(line)) { scopeOut++; scopeClassified = true }
+  }
+  if (!scopeClassified) scopeIn = scopeLines.length
+
+  const constraintSection = document.sections.find(section => /约束|假设|constraints?|assumptions?/i.test(section.heading))
+  const openCount = (allText.match(/待确认|未决|\bopen\b/gi) || []).length
+
+  return {
+    sections: document.sections.length,
+    tasksDone,
+    tasksTotal: tasks.length,
+    taskPct,
+    scopeIn,
+    scopeOut,
+    scopeTotal: scopeIn + scopeOut,
+    constraints: constraintSection ? bulletCount(constraintSection.lines) : 0,
+    openCount,
+  }
+}
+
+function renderDashboard(stats) {
+  const ring = stats.tasksTotal
+    ? `<svg class="ring" viewBox="0 0 42 42" role="img" aria-label="验收进度 ${stats.taskPct}%">
+        <circle class="ring-bg" cx="21" cy="21" r="16" pathLength="100"></circle>
+        <circle class="ring-value" cx="21" cy="21" r="16" pathLength="100" stroke-dasharray="${stats.taskPct} 100"></circle>
+      </svg><span class="ring-label">${stats.taskPct}%</span>`
+    : '<span class="metric-empty">—</span>'
+
+  const scopeTotal = stats.scopeTotal || 1
+  const scopePct = stats.scopeTotal ? Math.round((stats.scopeIn / scopeTotal) * 100) : 0
+
+  return `<section class="overview" aria-labelledby="overview-title">
+    <div class="overview-head">
+      <p class="eyebrow">AT A GLANCE</p>
+      <h2 id="overview-title">计划概览</h2>
+      <p>从 project.md 直接统计，不引入额外事实。</p>
+    </div>
+    <div class="metrics">
+      <article class="metric">
+        <div class="metric-visual ring-wrap">${ring}</div>
+        <div><span class="metric-kicker">验收进度</span><strong>${stats.tasksDone} / ${stats.tasksTotal}</strong><small>已完成 / 总项</small></div>
+      </article>
+      <article class="metric">
+        <div class="metric-visual scope-visual">
+          <div class="scope-bar"><span style="width:${scopePct}%"></span></div>
+          <div class="scope-legend"><span><i class="dot in"></i>In ${stats.scopeIn}</span><span><i class="dot out"></i>Out ${stats.scopeOut}</span></div>
+        </div>
+        <div><span class="metric-kicker">范围平衡</span><strong>${stats.scopeTotal}</strong><small>纳入 / 排除条目</small></div>
+      </article>
+      <article class="metric">
+        <div class="metric-visual big-number">${stats.sections}</div>
+        <div><span class="metric-kicker">章节</span><strong>${stats.constraints}</strong><small>约束与假设条目</small></div>
+      </article>
+      <article class="metric">
+        <div class="metric-visual big-number">${stats.openCount}</div>
+        <div><span class="metric-kicker">待确认</span><strong>Open</strong><small>需要后续决定的事项</small></div>
+      </article>
+    </div>
+  </section>`
+}
+
 export function renderPlanHtml(markdown, options = {}) {
   const document = parseDocument(markdown)
   const title = document.title || basename(options.source || 'project.md', '.md')
   const sections = document.sections.length
     ? document.sections
     : [{ heading: '概述', lines: markdown.split('\n') }]
+  const stats = summarize(document)
 
   const nav = sections
-    .map((section, index) => `<a href="#section-${index + 1}">${escapeHtml(section.heading)}</a>`)
+    .map((section, index) => `<a href="#section-${index + 1}"><span class="nav-index">${String(index + 1).padStart(2, '0')}</span><span>${escapeHtml(section.heading)}</span></a>`)
     .join('')
 
   const body = sections.map((section, index) => `
@@ -173,6 +254,7 @@ export function renderPlanHtml(markdown, options = {}) {
     .replaceAll('{{SOURCE}}', escapeHtml(options.source || 'project.md'))
     .replaceAll('{{GENERATED}}', escapeHtml(options.generated || new Date().toISOString()))
     .replaceAll('{{NAV}}', nav || '<span>暂无章节</span>')
+    .replaceAll('{{DASHBOARD}}', renderDashboard(stats))
     .replaceAll('{{SECTIONS}}', body)
 }
 

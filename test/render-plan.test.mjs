@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
-import { parseDocument, renderPlanHtml } from '../scripts/render-plan.js'
+import { parseDocument, renderPlanHtml, summarize } from '../scripts/render-plan.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = dirname(HERE)
@@ -30,8 +30,23 @@ test('renderPlanHtml: includes title, sections, cards and escaped HTML', () => {
   assert.match(html, /id="section-1"/)
   assert.match(html, /class="task done"/)
   assert.match(html, /□/)
+  assert.match(html, /class="rail"/)
+  assert.match(html, /class="toc"/)
+  assert.match(html, /计划概览/)
+  assert.match(html, /验收进度/)
+  assert.match(html, /1 \/ 2/)
   assert.doesNotMatch(html, /<script>alert/)
   assert.match(html, /source: project.md/)
+})
+
+test('summarize: counts tasks, scope and constraints from the source', () => {
+  const stats = summarize(parseDocument('# T\n\n## 范围\n- In: 登录\n- Out: 注册\n\n## 验收标准\n- [x] 一\n- [ ] 二\n\n## 约束与假设\n- 约束一\n- 待确认二\n'))
+  assert.equal(stats.tasksDone, 1)
+  assert.equal(stats.tasksTotal, 2)
+  assert.equal(stats.scopeIn, 1)
+  assert.equal(stats.scopeOut, 1)
+  assert.equal(stats.constraints, 2)
+  assert.equal(stats.openCount, 1)
 })
 
 test('renderPlanHtml: renders a simple table', () => {

@@ -25,7 +25,7 @@
       linear-gradient(180deg, #f2eee3 0, var(--paper) 22rem, #f8f5ee 100%);
     font: 16px/1.7 "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   }
-  .page { width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 54px 0 80px; }
+  .page { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 54px 0 80px; }
   .hero {
     padding: clamp(26px, 4vw, 48px);
     border: 1px solid var(--line);
@@ -49,18 +49,76 @@
   .subtitle { margin: 16px 0 0; color: var(--muted); font-size: 17px; }
   .meta { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 24px; color: var(--muted); font: 12px/1.4 "SFMono-Regular", Consolas, monospace; }
   .meta span { padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
-  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; }
-  .toc a {
-    padding: 7px 11px;
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 24px; align-items: start; margin-top: 24px; }
+  .main { min-width: 0; }
+  .rail {
+    position: sticky;
+    top: 24px;
+    padding: 18px;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: 18px;
+    background: rgba(255,253,248,.92);
+    box-shadow: 0 8px 20px rgba(41,52,43,.035);
+  }
+  .rail-label { margin: 0 0 10px; color: var(--muted); font: 700 10px/1 "SFMono-Regular", Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; }
+  .toc { display: flex; flex-direction: column; gap: 6px; }
+  .toc a {
+    display: flex;
+    gap: 9px;
+    align-items: baseline;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
     color: var(--accent);
-    background: var(--card);
+    background: #fbfaf4;
     font-size: 13px;
     text-decoration: none;
+    transition: background .15s, border-color .15s;
   }
   .toc a:hover { background: var(--accent-soft); border-color: var(--accent); }
-  .blocks { display: grid; gap: 18px; margin-top: 24px; }
+  .nav-index { color: var(--muted); font: 700 10px/1 "SFMono-Regular", Consolas, monospace; }
+  .rail-note { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+  .overview {
+    padding: 22px 24px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--card);
+    box-shadow: 0 8px 20px rgba(41,52,43,.035);
+  }
+  .overview-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+  .overview-head .eyebrow { margin: 0; }
+  .overview-head h2 { margin: 0; font: 700 clamp(20px, 2.6vw, 28px)/1.2 Georgia, "Songti SC", serif; }
+  .overview-head > p:last-child { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 13px; }
+  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+  .metric {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fbfaf4;
+  }
+  .metric-visual { width: 56px; height: 56px; }
+  .ring-wrap { position: relative; display: grid; place-items: center; }
+  .ring { width: 56px; height: 56px; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 4; }
+  .ring-bg { stroke: #e6e1d5; }
+  .ring-value { stroke: var(--accent); stroke-linecap: round; }
+  .ring-label { position: absolute; color: var(--ink); font: 700 10px/1 "SFMono-Regular", Consolas, monospace; }
+  .metric-kicker { display: block; color: var(--muted); font: 700 9px/1.2 "SFMono-Regular", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+  .metric strong { display: block; margin-top: 3px; color: var(--ink); font: 700 20px/1.15 Georgia, "Songti SC", serif; }
+  .metric small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+  .scope-visual { display: flex; flex-direction: column; justify-content: center; gap: 7px; width: 56px; }
+  .scope-bar { height: 7px; overflow: hidden; border-radius: 999px; background: #e6e1d5; }
+  .scope-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #73a88d); }
+  .scope-legend { display: flex; justify-content: space-between; color: var(--muted); font-size: 9px; white-space: nowrap; }
+  .dot { display: inline-block; width: 5px; height: 5px; margin-right: 3px; border-radius: 50%; background: var(--accent); }
+  .dot.out { background: #c9bda8; }
+  .big-number { display: grid; place-items: center; border-radius: 50%; color: var(--accent); background: var(--accent-soft); font: 700 22px/1 Georgia, "Songti SC", serif; }
+  .metric-empty { color: var(--muted); font-size: 18px; }
+  .blocks { display: grid; gap: 18px; margin-top: 18px; }
   .block {
     display: grid;
     grid-template-columns: 58px minmax(0, 1fr);
@@ -106,9 +164,21 @@
   .task.done { color: var(--muted); text-decoration: line-through; }
   .empty { color: var(--muted); font-style: italic; }
   .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: right; }
+  @media (max-width: 1000px) {
+    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .rail { position: static; order: -1; }
+    .toc { flex-direction: row; flex-wrap: wrap; }
+    .toc a { flex: 1 1 150px; }
+    .rail-note { display: none; }
+  }
   @media (max-width: 680px) {
-    .page { width: min(100% - 24px, 1040px); padding-top: 24px; }
+    .page { width: min(100% - 24px, 1180px); padding-top: 24px; }
     .hero { padding: 24px 20px; border-radius: 16px; }
+    .overview { padding: 18px; border-radius: 16px; }
+    .metrics { grid-template-columns: 1fr; }
     .block { grid-template-columns: 1fr; gap: 8px; padding: 20px; }
     .block .index { font-size: 11px; }
   }
@@ -116,8 +186,10 @@
     @page { margin: 14mm; }
     body { background: #fff; color: #000; font-size: 11pt; }
     .page { width: auto; padding: 0; }
-    .hero, .block { border: 1px solid #bbb; box-shadow: none; break-inside: avoid; }
-    .toc { display: none; }
+    .layout { display: block; }
+    .rail { display: none; }
+    .hero, .overview, .block { border: 1px solid #bbb; box-shadow: none; break-inside: avoid; }
+    .overview { margin-bottom: 8pt; }
     .block { padding: 12pt; margin-bottom: 8pt; }
     a { color: inherit; text-decoration: none; }
   }
@@ -133,9 +205,18 @@
       <span>source: {{SOURCE}}</span>
       <span>generated: {{GENERATED}}</span>
     </div>
-    <nav class="toc" aria-label="章节导航">{{NAV}}</nav>
   </header>
-  <div class="blocks">{{SECTIONS}}</div>
+  <div class="layout">
+    <div class="main">
+      {{DASHBOARD}}
+      <div class="blocks">{{SECTIONS}}</div>
+    </div>
+    <aside class="rail" aria-label="计划导航">
+      <p class="rail-label">章节导航</p>
+      <nav class="toc">{{NAV}}</nav>
+      <p class="rail-note">点击按钮跳到对应章节。</p>
+    </aside>
+  </div>
   <footer class="footer">plan-first · source of truth: project.md</footer>
 </main>
 </body>
