@@ -1,0 +1,3 @@
+display_name: "Plan First"
+short_description: "Turn a task goal into a readable HTML plan"
+allow_implicit_invocation: false

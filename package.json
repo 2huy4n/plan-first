@@ -1,0 +1,10 @@
+{
+  "name": "plan-first",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Turn a task goal into a readable standalone HTML plan.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
