@@ -134,3 +134,7 @@ node scripts/render-plan.js --source project.md --out plan.html --force
 ```bash
 npm test
 ```
+
+## License
+
+AGPL-3.0-or-later. See [LICENSE](LICENSE) for the full text.
